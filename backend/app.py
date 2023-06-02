@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
 from flask_cors import CORS
+from flask import redirect
+
 
 app = Flask(__name__)
 
@@ -54,12 +56,54 @@ def login():
 
     if user is not None and user[2] == password:
         # User exists and password matches
-        response = {'message': 'Login successful'}
-        return jsonify(response), 200
+        # Redirect to the /user endpoint with the email as a query parameter
+        return redirect(f"/user?email={email}", code=302)
     else:
         # Invalid credentials or user not found
         response = {'message': 'Invalid name or password'}
         return jsonify(response), 401
+    
+@app.route('/user', methods=['GET'])
+def get_user():
+    email = request.args.get('email')  # Retrieve the email from the query parameters
+
+    if email:
+        # Retrieve the user's username and email from the database
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT name, email FROM user WHERE email = %s", (email,))
+        user = cur.fetchone()
+
+        if user:
+            # User found, return the username and email
+            response = {
+                'name': user[0],
+                'email': user[1]
+            }
+            return jsonify(response), 200
+        else:
+            # User not found
+            response = {'message': 'User not found'}
+            return jsonify(response), 404
+    else:
+        # Email parameter is missing
+        response = {'message': 'Email parameter is required'}
+        return jsonify(response), 400
+
+@app.route('/update-profile', methods=['PUT'])
+def update_profile():
+    data = request.get_json()
+    name = data['name']
+    email = data['email']
+    
+
+    # Update the user profile in the database
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE user SET name = %s WHERE email = %s", (name, email))
+    mysql.connection.commit()
+
+    # Profile update successful
+    response = {'message': 'Profile updated successfully'}
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

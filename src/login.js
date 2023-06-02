@@ -1,15 +1,20 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Validation from './loginvalidation';
 
 function login() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    const navigate = useNavigate();
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [values, setValues] = useState({
         email: '',
         password: ''
-    })
+    });
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [errors, setErrors] = useState({})
+    const [errors, setErrors] = useState({});
+
+
     const handleInput = (event) => {
         setValues(prev => ({ ...prev, [event.target.name]: event.target.value }))
 
@@ -21,15 +26,17 @@ function login() {
 
         if (Object.keys(errors).length === 0) {
             fetch('http://127.0.0.1:5000/login', {
-              method: 'POST',
+              methpod: 'POST',
               headers: {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify(values)
             })
-              .then(response => {
+              .then((response) => {
                 if (response.ok) {
                   console.log('Login successful');
+                  navigate('/profile')
+        
                   // Handle the successful login
                 } else {
                   console.log('Login failed');
