@@ -1,54 +1,47 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Validation from './loginvalidation';
+import axios from 'axios';
 
 function login() {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const navigate = useNavigate();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const nav = useNavigate();
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [values, setValues] = useState({
-        email: '',
-        password: ''
-    });
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [errors, setErrors] = useState({});
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [val, setValues] = useState({
+    email: '',
+    password: ''
+  });
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [errors, setErrors] = useState({});
 
-    const handleInput = (event) => {
-        setValues(prev => ({ ...prev, [event.target.name]: event.target.value }))
+  const handleInput = (event) => {
+    setValues((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setErrors(Validation(val));
+
+    if (Object.keys(errors).length === 0) {
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/login', val);
+        if (response.status === 200) {
+          console.log('Login successful');
+          nav('/profile');
+          // Handle the successful login
+        } else {
+          console.log('Login failed');
+          // Handle the failed login
+        }
+      } catch (error) {
+        console.log('An error occurred during login:', error);
+        // Handle the error
+      }
     }
+  };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setErrors(Validation(values));
-
-        if (Object.keys(errors).length === 0) {
-            fetch('http://127.0.0.1:5000/login', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(values)
-            })
-              .then((response) => {
-                if (response.ok) {
-                  console.log('Login successful');
-                  navigate('/profile')
-        
-                  // Handle the successful login
-                } else {
-                  console.log('Login failed');
-                  // Handle the failed login
-                }
-              })
-              .catch(error => {
-                console.log('An error occurred during login:', error);
-                // Handle the error
-              });
-          }
-        };
      
   return (
     <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>

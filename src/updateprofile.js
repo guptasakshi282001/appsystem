@@ -1,62 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function UpdateProfile() {
-  const navigate = useNavigate();
+axios.interceptors.request.use((config) => {
+  config.baseURL = 'http://127.0.0.1:5000';
+  return config;
+});
 
-  const [profile, setProfile] = useState({
+function Profile() {
+  const nav = useNavigate();
+
+  const [pic, setProfile] = useState({
+    photo: '',
     name: '',
     email: ''
   });
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      [name]: value
-    }));
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('/user', {
+        params: {
+          email: 'soni@gmail.com'
+        }
+      });
+      const data = response.data;
+      setProfile({
+        photo: data.photo,
+        name: data.name,
+        email: data.email
+      });
+    } catch (error) {
+      console.log('An error occurred while fetching user data:', error);
+    }
   };
 
   const handleUpdateProfile = () => {
-    // Perform the API call to update the user profile
-    fetch('http://127.0.0.1:5000/update-profile', {
-      method: 'PUT', // Assuming the server uses the PUT method for updates
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(profile)
-    })
-      .then((response) => {
-        if (response.ok) {
-          console.log('Profile updated successfully');
-          navigate('/profile'); // Redirect to the profile page after successful update
-        } else {
-          console.log('Failed to update profile');
-          // Handle the failed update case
-        }
-      })
-      .catch((error) => {
-        console.log('An error occurred during profile update:', error);
-        // Handle the error case
-      });
+    console.log('Updating profile...');
+    nav('/updateprofile');
+  };
+
+  const handleFileSelect = (event) => {
+    setSelectedFile(URL.createObjectURL(event.target.files[0]));
   };
 
   return (
-    <div>
-      <h2>Update Profile</h2>
-      <form>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input type="text" id="name" name="name" value={profile.name} onChange={handleInputChange} />
+    <div className="d-flex justify-content-center align-items-center bg-primary vh-100">
+      <div className="bg-white p-3 rounded w-25">
+        <h2>User Profile</h2>
+        <div className="card mb-3">
+          <img src={selectedFile || pic.photo} className="card-img-top rounded-circle" alt="Profile" />
+          <div className="card-body">
+            <h5 className="card-title">{pic.name}</h5>
+            <p className="card-text">{pic.email}</p>
+          </div>
         </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" name="email" value={profile.email} onChange={handleInputChange} />
-        </div>
-        <button type="button" onClick={handleUpdateProfile}>Update Profile</button>
-      </form>
+        <input type="file" onChange={handleFileSelect} accept="image/*" />
+        <button onClick={handleUpdateProfile} className="btn btn-success w-100">
+          Update Profile
+        </button>
+      </div>
     </div>
   );
 }
 
-export default UpdateProfile;
+export default Profile;
