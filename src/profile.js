@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-axios.interceptors.request.use((config) => {
-  config.baseURL = 'http://127.0.0.1:5000';
-  return config;
-});
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "./api";
 
 function Profile() {
   const nav = useNavigate();
 
-  const [pic, setProfile] = useState({
-    photo: '',
-    name: '',
-    email: ''
+  const [userprofile, setProfile] = useState({
+    photo: "",
+    name: "",
+    email: "",
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -24,25 +19,26 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/user', {
+      // eslint-disable-next-line no-undef
+      const response = await axiosInstance.post("/user", {
         params: {
-          email: 'soni@gmail.com'
-        }
+          email: "soni@gmail.com",
+        },
       });
       const data = response.data;
       setProfile({
         photo: data.photo,
         name: data.name,
-        email: data.email
+        email: data.email,
       });
     } catch (error) {
-      console.log('An error occurred while fetching user data:', error);
+      console.log("An error occurred while fetching user data:", error);
     }
   };
 
   const handleUpdateProfile = () => {
-    console.log('Updating profile...');
-    nav('/updateprofile');
+    console.log("Updating profile...");
+    nav("/updateprofile");
   };
 
   const handleFileSelect = (event) => {
@@ -54,10 +50,14 @@ function Profile() {
       <div className="bg-white p-3 rounded w-25">
         <h2>User Profile</h2>
         <div className="card mb-3">
-          <img src={selectedFile || pic.photo} className="card-img-top rounded-circle" alt="Profile" />
+          <img
+            src={selectedFile || userprofile.photo}
+            className="card-img-top rounded-circle"
+            alt="Profile"
+          />
           <div className="card-body">
-            <h5 className="card-title">{pic.name}</h5>
-            <p className="card-text">{pic.email}</p>
+            <h5 className="card-title">{userprofile.name}</h5>
+            <p className="card-text">{userprofile.email}</p>
           </div>
         </div>
         <input type="file" onChange={handleFileSelect} accept="image/*" />
