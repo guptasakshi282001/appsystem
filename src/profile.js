@@ -41,6 +41,10 @@ function Profile() {
     nav("/updateprofile");
   };
 
+  const handleCreateProfile = () => {
+    nav("/createprofile");
+  };
+
   const handleFileSelect = (event) => {
     setSelectedFile(URL.createObjectURL(event.target.files[0]));
   };
@@ -64,6 +68,11 @@ function Profile() {
         <button onClick={handleUpdateProfile} className="btn btn-success w-100">
           Update Profile
         </button>
+
+        <button onClick={handleCreateProfile} className="btn btn-success w-100 m-15">
+          Create Profile
+        </button>
+
       </div>
     </div>
   );

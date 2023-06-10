@@ -50,7 +50,7 @@ function Profile() {
         <h2>User Profile</h2>
         <div className="card mb-3">
           <img
-            src={selectedFile ||userprofile.photo}
+            src={selectedFile || userprofile.photo}
             className="card-img-top rounded-circle"
             alt="Profile"
           />
